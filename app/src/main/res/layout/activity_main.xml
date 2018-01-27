@@ -7,10 +7,13 @@
     tools:context="com.conuhacks2018.conuhacks2018.MainActivity">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/brandImage"
         android:layout_width="84dp"
         android:layout_height="77dp"
-        app:srcCompat="@android:drawable/ic_menu_search"
-        tools:layout_editor_absoluteX="150dp"
-        tools:layout_editor_absoluteY="79dp" />
+        android:layout_marginStart="148dp"
+        android:layout_marginLeft="148dp"
+        android:layout_marginTop="48dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_search" />
 </android.support.constraint.ConstraintLayout>
