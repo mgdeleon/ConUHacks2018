@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         searchImage.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Toast.makeText(getApplicationContext(), "Searching Company", Toast.LENGTH_SHORT).show();
                 stockDetails = new ArrayList<>();
                 if(getBrand()) {
                     stock = new Stock();
@@ -262,8 +261,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d("TAG", "Valid Result");
 
             // In one line
-//        result = client.getDefaultModels().logoModel().predict()
-//                .withInputs(ClarifaiInput.forImage(imageFile)).executeSync().get();
+        result = client.getDefaultModels().logoModel().predict()
+                .withInputs(ClarifaiInput.forImage(imageFile)).executeSync().get();
 
             brand = "Invalid Company";
             try {
