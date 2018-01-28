@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/navBarColor"
-    tools:context="com.conuhacks2018.conuhacks2018.MainActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context="com.conuhacks2018.conuhacks2018.MainActivity">
 
 
     <LinearLayout
@@ -20,8 +21,8 @@
 
         <EditText
             android:id="@+id/searchEditText"
-            android:layout_width="270dp"
-            android:layout_height="45dp"
+            android:layout_width="230dp"
+            android:layout_height="66dp"
             android:layout_weight="1"
             android:background="@drawable/search_background"
             android:ems="10"
@@ -35,7 +36,7 @@
         <ImageView
             android:id="@+id/searchImage"
             android:layout_width="39dp"
-            android:layout_height="45dp"
+            android:layout_height="63dp"
             android:layout_weight="1"
             app:srcCompat="@android:drawable/ic_menu_search"
             tools:layout_editor_absoluteX="336dp"
@@ -43,8 +44,8 @@
 
         <ImageView
             android:id="@+id/cameraImage"
-            android:layout_width="wrap_content"
-            android:layout_height="45dp"
+            android:layout_width="52dp"
+            android:layout_height="60dp"
             android:layout_weight="1"
             app:srcCompat="@android:drawable/ic_menu_camera"
             tools:layout_editor_absoluteX="286dp"
@@ -61,18 +62,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@mipmap/ic_launcher"
+            app:srcCompat="@color/navBarColor"
             tools:layout_editor_absoluteY="0dp" />
 
         <ListView
             android:id="@+id/stockDetails"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
             android:layout_toEndOf="@+id/brandImage"
             app:layout_constraintTop_toBottomOf="@+id/brandImage"
             tools:layout_editor_absoluteX="8dp" />
 
-        <com.github.mikephil.charting.charts.CandleStickChart
+        <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/stockChart"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -86,9 +88,9 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
 

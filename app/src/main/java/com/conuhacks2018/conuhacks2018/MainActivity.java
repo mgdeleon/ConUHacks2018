@@ -15,21 +15,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.CandleStickChart;
+import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.CandleData;
 import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
+import com.github.mikephil.charting.data.DataSet;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ICandleDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import org.json.JSONException;
 
@@ -59,8 +67,12 @@ public class MainActivity extends AppCompatActivity {
     ImageView cameraImage;
     ImageView brandImage;
     ListView stockDetailsListView;
-    private CandleStickChart stockChart;
+    //private CandleStickChart stockChart;
+
+    private LineChart stockChart;
+
     TextView noStocksTextView ;
+    EditText searchEditText;
 
     String brand;
     String imagePath;
@@ -80,16 +92,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Get reference to UI elements
+        searchEditText = findViewById(R.id.searchEditText);
         searchImage = findViewById(R.id.searchImage);
         searchImage.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                Toast.makeText(getApplicationContext(), "Searching Company", Toast.LENGTH_SHORT).show();
                 stockDetails = new ArrayList<>();
                 if(getBrand()) {
                     stock = new Stock();
-
                     try {
-                        stockDetails = stock.getStockInfo("Apple");
+                        stockDetails = stock.getStockInfo(brand);
+                        searchEditText.setText(brand);
 
                     } catch (IOException e) {
                         Log.d("TAG", "IOException");
@@ -100,7 +114,13 @@ public class MainActivity extends AppCompatActivity {
                     }
 
 
-                    createChart();
+                    try {
+                        createChart();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
                 else{
                     noStocksTextView.setText("Please Try Again.");
@@ -167,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-            //...
+                //...
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
@@ -229,12 +249,11 @@ public class MainActivity extends AppCompatActivity {
             final ClarifaiClient client = new ClarifaiBuilder("b274ccb0426b4b3da3b313e1f118141a").buildSync();
 
             Log.d("TAG", "Valid Key");
+        PredictRequest<Logo> request = client.getDefaultModels().logoModel().predict()
+                .withInputs(ClarifaiInput.forImage(imageFile));
 
-//        PredictRequest<Logo> request = client.getDefaultModels().logoModel().predict()
-//                .withInputs(ClarifaiInput.forImage(imageFile));
-
-            PredictRequest<Logo> request = client.getDefaultModels().logoModel().predict()
-                    .withInputs(ClarifaiInput.forImage("http://krishibazareradda.com/wp-content/uploads/2016/12/Pepsi-Can-01.jpg"));
+//            PredictRequest<Logo> request = client.getDefaultModels().logoModel().predict()
+//                    .withInputs(ClarifaiInput.forImage("http://krishibazareradda.com/wp-content/uploads/2016/12/Pepsi-Can-01.jpg"));
 
             Log.d("TAG", "Valid Request");
 
@@ -250,9 +269,11 @@ public class MainActivity extends AppCompatActivity {
             try {
                 brand = result.get(0).data().get(0).concepts().get(0).name();
             } catch (Exception e) {
-                Log.d("TAG", "ERROR");
+                Log.d("TAG", "Invalid Company");
+                Toast.makeText(getApplicationContext(), "Invalid Company", Toast.LENGTH_SHORT).show();
                 return false;
             }
+
             Log.d("TAG", brand);
 
         } catch (Exception e) {
@@ -267,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* TO CREATE A CHART */
     private Thread thread;
-    void createChart(){
+    void createChart() throws IOException, JSONException {
         final int nbrEntries = 15;
         // Set layout
         stockChart.getDescription().setEnabled(false);
@@ -290,6 +311,7 @@ public class MainActivity extends AppCompatActivity {
                 return mFormat.format(new Date(Calendar.getInstance().getTimeInMillis()));
             }
         });
+        stockChart.getXAxis().setEnabled(false);
 
         YAxis rightAxis = stockChart.getAxisRight();
         rightAxis.setLabelCount(7, false);
@@ -297,151 +319,98 @@ public class MainActivity extends AppCompatActivity {
         rightAxis.setDrawAxisLine(true);
         rightAxis.setGridColor(Color.WHITE);
         rightAxis.setTextColor(Color.WHITE);
-
         stockChart.getAxisLeft().setEnabled(false);
 
         // Create Data Points
         final ArrayList<CandleEntry> yVals1 = new ArrayList<CandleEntry>();
 
-        for (int i = 0; i < nbrEntries; i++) {
 
-            try {
-                yVals1.add(new CandleEntry(
-                        i,
-                        Float.parseFloat(stock.getGraphInfo().get(0)), //HIGH
-                        Float.parseFloat(stock.getGraphInfo().get(1)), //LOW
-                        Float.parseFloat(stock.getGraphInfo().get(2)), //OPEN
-                        Float.parseFloat(stock.getGraphInfo().get(3))  //CLOSE
-                ));
+        ArrayList<Entry> values = new ArrayList<Entry>();
 
 
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        Log.d("TAG", "Created Candle Entry ArrayList");
+        ArrayList<String> graphHistory = stock.getGraphHistory();
+        Log.d("TAG", "Got Graph History");
+        String[] closeValues = graphHistory.get(0).split("\\;");
+        Log.d("TAG", "GSplit String");
 
+        for (int i = 0; i < closeValues.length; i++) {
 
-            try {
-                Log.d("Stock", Float.toString(Float.parseFloat(stock.getGraphInfo().get(0))));
-                Log.d("Stock", Float.toString(Float.parseFloat(stock.getGraphInfo().get(1))));
-                Log.d("Stock", Float.toString(Float.parseFloat(stock.getGraphInfo().get(2))));
-                Log.d("Stock", Float.toString(Float.parseFloat(stock.getGraphInfo().get(3))));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-
-//            Log.d("TAG", "Added Entry");
-//            float val = (float) (Math.random() * 40) + 50;
-//            float high = (float) (Math.random() * 9) + 8f;
-//            float low = (float) (Math.random() * 9) + 8f;
-//            float open = (float) (Math.random() * 6) + 1f;
-//            float close = (float) (Math.random() * 6) + 1f;
-//
-//            boolean even = i % 2 == 0;
-//
-//            yVals1.add(new CandleEntry(
-//                    i, val + high,
-//                    val - low,
-//                    even ? val + open : val - open,
-//                    even ? val - close : val + close
-//            ));
-//
-//            Log.d("Stock", Float.toString(val + high));
-//            Log.d("Stock", Float.toString(val - low));
-//            Log.d("Stock", Float.toString(even ? val + open : val - open));
-//            Log.d("Stock", Float.toString(even ? val - close : val + close));
+            Log.d("TAG", closeValues[i]);
+            values.add(new Entry(i, Float.valueOf(closeValues[i])));
         }
 
-        final CandleDataSet set1 = new CandleDataSet(yVals1, "Data Set");
-        set1.setDrawHighlightIndicators(false);
-        set1.setDrawIcons(false);
-        set1.setAxisDependency(YAxis.AxisDependency.RIGHT);
-        set1.setDrawValues(false);
-        set1.setShadowColor(Color.WHITE);
-        set1.setShadowWidth(0.7f);
-        set1.setDecreasingColor(Color.RED);
-        set1.setDecreasingPaintStyle(Paint.Style.FILL);
-        set1.setIncreasingPaintStyle(Paint.Style.FILL);
-        set1.setIncreasingColor(Color.rgb(122, 242, 84));
-        set1.setIncreasingPaintStyle(Paint.Style.STROKE);
-        set1.setNeutralColor(Color.BLUE);
-        //set1.setHighlightLineWidth(1f);
+        final LineDataSet set1 = new LineDataSet(values, "DataSet 1");
 
-        Log.d("TAG", "Formated data set");
-        final CandleData data = new CandleData(set1);
 
-        Log.d("TAG", "Gave dataset to data");
+        ArrayList<DataSet> dataSets = new ArrayList();
+        dataSets.add(set1); // add the datasets
+
+        // create a data object with the datasets
+        LineData data = new LineData(set1);
+
+        // set data
         stockChart.setData(data);
 
-        Log.d("TAG", "Set data on chart");
-        stockChart.setVisibleXRangeMaximum(10); // allow 20 values to be displayed at once on the x-axis, not more
-        stockChart.moveViewToX(nbrEntries-1);
-
-        Log.d("TAG", "formatted chart");
-
+        //stockChart.setVisibleXRangeMaximum(10); // allow 20 values to be displayed at once on the x-axis, not more
+        //stockChart.moveViewToX(nbrEntries-1);
         stockChart.invalidate();
-        Log.d("TAG", "ADDED FIRST SET OF POINTS");
 
+//        if (thread != null)
+//            thread.interrupt();
+//
+//        final Runnable runnable = new Runnable() {
+//
+//            @Override
+//            public void run() {
+//
+//
+//                try {
+//                    set1.addEntry(new CandleEntry(set1.getEntryCount(),
+//                            Float.parseFloat(stock.getGraphInfo().get(0)),
+//                            Float.parseFloat(stock.getGraphInfo().get(1)),
+//                            Float.parseFloat(stock.getGraphInfo().get(2)),
+//                            Float.parseFloat(stock.getGraphInfo().get(3))));
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                data.notifyDataChanged();
+//
+//                // let the chart know it's data has changed
+//                stockChart.notifyDataSetChanged();
+//
+//                // limit the number of visible entries
+//                stockChart.setVisibleXRangeMaximum(10);
+//                // mChart.setVisibleYRange(30, AxisDependency.LEFT);
+//
+//                // move to the latest entry
+//                stockChart.moveViewToX(data.getEntryCount());
+//            }
+//        };
 
-        if (thread != null)
-            thread.interrupt();
-
-        final Runnable runnable = new Runnable() {
-
-            @Override
-            public void run() {
-
-
-                try {
-                    set1.addEntry(new CandleEntry(set1.getEntryCount(),
-                            Float.parseFloat(stock.getGraphInfo().get(0)),
-                            Float.parseFloat(stock.getGraphInfo().get(1)),
-                            Float.parseFloat(stock.getGraphInfo().get(2)),
-                            Float.parseFloat(stock.getGraphInfo().get(3))));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                data.notifyDataChanged();
-
-                // let the chart know it's data has changed
-                stockChart.notifyDataSetChanged();
-
-                // limit the number of visible entries
-                stockChart.setVisibleXRangeMaximum(10);
-                // mChart.setVisibleYRange(30, AxisDependency.LEFT);
-
-                // move to the latest entry
-                stockChart.moveViewToX(data.getEntryCount());
-            }
-        };
-
-        thread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                for (int i = 0; i < 1000; i++) {
-
-                    // Don't generate garbage runnables inside the loop.
-                    runOnUiThread(runnable);
-
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        thread.start();
+//        thread = new Thread(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                for (int i = 0; i < 1000; i++) {
+//
+//                    // Don't generate garbage runnables inside the loop.
+//                    runOnUiThread(runnable);
+//
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
+//
+//        thread.start();
 
     }
 }
