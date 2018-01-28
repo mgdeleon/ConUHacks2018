@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ConUHacks2018</string>
+    <string name="search_text">Enter Name or Upload</string>
 </resources>
