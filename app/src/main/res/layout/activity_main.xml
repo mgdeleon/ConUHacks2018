@@ -1,16 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/navBarColor"
+    android:orientation="vertical"
+    android:padding="8dp"
     tools:context="com.conuhacks2018.conuhacks2018.MainActivity">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="84dp"
-        android:layout_height="77dp"
-        app:srcCompat="@android:drawable/ic_menu_search"
-        tools:layout_editor_absoluteX="150dp"
-        tools:layout_editor_absoluteY="79dp" />
-</android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/searchLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="8dp">
+
+        <EditText
+            android:id="@+id/searchEditText"
+            android:layout_width="230dp"
+            android:layout_height="66dp"
+            android:layout_weight="1"
+            android:background="@drawable/search_background"
+            android:ems="10"
+            android:hint="@string/search_text"
+            android:inputType="textPersonName"
+            android:textColor="@android:color/darker_gray"
+            android:textColorHint="@android:color/darker_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="16dp" />
+
+        <ImageView
+            android:id="@+id/searchImage"
+            android:layout_width="39dp"
+            android:layout_height="63dp"
+            android:layout_weight="1"
+            app:srcCompat="@android:drawable/ic_menu_search"
+            tools:layout_editor_absoluteX="336dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+        <ImageView
+            android:id="@+id/cameraImage"
+            android:layout_width="52dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            app:srcCompat="@android:drawable/ic_menu_camera"
+            tools:layout_editor_absoluteX="286dp"
+            tools:layout_editor_absoluteY="16dp" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp">
+
+        <ImageView
+            android:id="@+id/brandImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@color/navBarColor"
+            tools:layout_editor_absoluteY="0dp" />
+
+        <ListView
+            android:id="@+id/stockDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_toEndOf="@+id/brandImage"
+            app:layout_constraintTop_toBottomOf="@+id/brandImage"
+            tools:layout_editor_absoluteX="8dp" />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/stockChart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/stockDetails" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/noStocksView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@android:drawable/btn_dialog" />
+
+        <TextView
+            android:id="@+id/noStocksTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search or Snap a Company"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

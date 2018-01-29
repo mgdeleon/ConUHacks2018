@@ -3,4 +3,7 @@
     <color name="colorPrimary">#A7A5C6</color>
     <color name="colorPrimaryDark">#918fad</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="navBarColor">#191919</color>
+
 </resources>
